@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Two-Way Chat</title>
+    <title>Many-to-Many Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,6 +64,22 @@
             const chatMessages = document.getElementById('chat-messages');
             const messageInput = document.getElementById('message-input');
             const sendButton = document.getElementById('send-button');
+            
+            // Create WebSocket connection
+            const socket = new WebSocket('ws://localhost:3000');
+
+            socket.onopen = function(event) {
+                console.log('WebSocket connection established.');
+            };
+
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                displayMessage(data.sender, data.message);
+            };
+
+            socket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
 
             sendButton.addEventListener('click', sendMessage);
 
@@ -71,11 +87,8 @@
                 const message = messageInput.value.trim();
                 if (message !== '') {
                     displayMessage('You', message);
+                    socket.send(JSON.stringify({ sender: 'You', message }));
                     messageInput.value = '';
-                    // Automatically remove the message after 10 minutes
-                    setTimeout(() => {
-                        removeMessage(chatMessages.lastChild);
-                    }, 0.1 * 60 * 1000);
                 }
             }
 
@@ -85,14 +98,6 @@
                 messageElement.innerHTML = `<span>${sender}:</span> ${message}`;
                 chatMessages.appendChild(messageElement);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-                // Reload the page every 10 minutes
-                setTimeout(() => {
-                    location.reload();
-                }, 0.1 * 60 * 1000);
-            }
-
-            function removeMessage(messageElement) {
-                chatMessages.removeChild(messageElement);
             }
         });
     </script>
