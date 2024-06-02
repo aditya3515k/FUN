@@ -1,18 +1,100 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anonymous Chat</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Two-Way Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        #chat-container {
+            width: 400px;
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: white;
+        }
+
+        #chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .message span {
+            font-weight: bold;
+        }
+
+        #message-input {
+            width: calc(100% - 80px);
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div id="chat-container">
         <div id="chat-messages"></div>
-        <input type="text" id="message-input" placeholder="Enter your message...">
+        <input type="text" id="message-input" placeholder="Type your message...">
         <button id="send-button">Send</button>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+
+            sendButton.addEventListener('click', sendMessage);
+
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message !== '') {
+                    displayMessage('You', message);
+                    messageInput.value = '';
+                    // Automatically remove the message after 10 minutes
+                    setTimeout(() => {
+                        removeMessage(chatMessages.lastChild);
+                    }, 0.1 * 60 * 1000);
+                }
+            }
+
+            function displayMessage(sender, message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.innerHTML = `<span>${sender}:</span> ${message}`;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                // Reload the page every 10 minutes
+                setTimeout(() => {
+                    location.reload();
+                }, 0.1 * 60 * 1000);
+            }
+
+            function removeMessage(messageElement) {
+                chatMessages.removeChild(messageElement);
+            }
+        });
+    </script>
 </body>
 </html>
